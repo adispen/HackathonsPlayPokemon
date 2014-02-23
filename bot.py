@@ -165,22 +165,35 @@ def press(*args):
 
 
 # Some basic variables used to configure the bot        
-server = "irc.freenode.net" # Server
-channel = "#jacked" # Channel
+#server = "irc.twitch.tv" # Server
+#channel = "#HackathonsPlayPokemon" # Channel
 botnick = "HackathonsPlayPokemon" # Your bots nick
+#password = "oauth:878t7gk5f9z1ez6xtxxaa9hdhoq41d7"
+#port = "6667"
+
+HOST="irc.twitch.tv" ##This is the Twitch IRC ip, don't change it.
+PORT=6667 ##Same with this port, leave it be.
+NICK="HackathonsPlayPokemon" ##This has to be your bots username.
+PASS="" ##Instead of a password, use this http://twitchapps.com/tmi/, since Twitch is soon updating to it.
+IDENT="HackathonsPlayPokemon" ##Bot username again
+REALNAME="whoCares" ##This doesn't really matter.
+CHANNEL="#twitchplayspokemon" ##This is the channel your bot will be working on.
 
 
 def ping(): # This is our first function! It will respond to server Pings.
-  ircsock.send("PONG :pingis\n")  
+  s.send("PONG :pingis\n")  
 
 def sendmsg(chan , msg): # This is the send message function, it simply sends messages to the channel.
-  ircsock.send("PRIVMSG "+ chan +" :"+ msg +"\n") 
+  s.send("PRIVMSG "+ chan +" :"+ msg +"\n") 
 
 def joinchan(chan): # This function is used to join channels.
-  ircsock.send("JOIN "+ chan +"\n")
+  s.send("JOIN "+ chan +"\n")
+
+def authenticate(server, port, auth):
+  s.send("SERVER " + server + " " + port + " " + auth)
 
 def hello(): # This function responds to a user that inputs "Hello Mybot"
-  ircsock.send("PRIVMSG "+ channel +" :Hello!\n")
+  s.send("PRIVMSG "+ channel +" :Hello!\n")
 
 def aPress():
 
@@ -225,14 +238,26 @@ def startPress():
   #ReleaseKey(0x56)
   press('v')
 
+#import pdb; pdb.set_trace()
+s = socket.socket( ) ##Creating the socket variable
+s.connect((HOST, PORT)) ##Connecting to Twitch
+s.send("PASS %s\r\n" % PASS) ##Notice how I'm sending the password BEFORE the username!
+##Just sending the rest of the data now.
+s.send("NICK %s\r\n" % NICK)
+s.send("USER %s %s bla :%s\r\n" % (IDENT, HOST, REALNAME))
+##Connecting to the channel.
+s.send("JOIN %s\r\n" % CHANNEL)
+
+
 ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-ircsock.connect((server, 6667)) # Here we connect to the server using the port 6667
-ircsock.send("USER "+ botnick +" "+ botnick +" "+ botnick +" :This bot is a result of a tutoral covered on http://shellium.org/wiki.\n") # user authentication
-ircsock.send("NICK "+ botnick +"\n") # here we actually assign the nick to the bot
+#ircsock.connect((HOST, 6667)) # Here we connect to the server using the port 6667
+#ircsock.send("USER "+ botnick +" "+ botnick +" "+ botnick +" :This bot is a result of a tutoral covered on http://shellium.org/wiki.\n") # user authentication
+#ircsock.send("NICK "+ botnick +"\n") # here we actually assign the nick to the bot
 
-joinchan(channel) # Join the channel using the functions we previously defined
+#authenticate(server, port, password)
+#joinchan(channel) # Join the channel using the functions we previously defined
 
-IRC = "#jacked "
+IRC = "#HackathonsPlayPokemon "
 
 def printCommands(name, command):
   spaces = ""
@@ -242,26 +267,29 @@ def printCommands(name, command):
     spaceBetween -= 1
   print name+spaces+command
 
-#import pdb; pdb.set_trace()
+
 
 while 1: # Be careful with these! it might send you to an infinite loop
-  ircmsg = ircsock.recv(2048) # receive data from the server
+  ircmsg = s.recv(2048) # receive data from the server
   ircmsg = ircmsg.strip('\n\r') # removing any unnecessary linebreaks.
   #print(ircmsg) # Here we print what's coming from the server
+
+  if ircmsg.find(":Hello "+ botnick) != -1: # If we can find "Hello Mybot" it will call the function hello()
+      hello()
+
+  if ircmsg.find("PING :") != -1: # if the server pings us then we've got to respond!
+      ping()
+
 
   input = ircmsg
   expression = ':(.+)!.+ PRIVMSG #(.+) :(.+)'
   output = re.search(expression, input)
 
   if output:
+    #import pdb; pdb.set_trace()
     name = output.group(1)
-    command = output.group(3)
+    command = output.group(3).strip().lower()
 
-    if ircmsg.find(":Hello "+ botnick) != -1: # If we can find "Hello Mybot" it will call the function hello()
-      hello()
-
-    if ircmsg.find("PING :") != -1: # if the server pings us then we've got to respond!
-      ping()
 
     if command == "a": # Finding messages
       aPress()
