@@ -7,7 +7,7 @@ import re
 
 # Some basic variables used to configure the bot        
 server = "irc.freenode.net" # Server
-channel = "#ruhack" # Channel
+channel = "#jacked" # Channel
 botnick = "PokemonTest%d" % random.randint(1,10000) # Your bots nick
 
 
@@ -107,6 +107,7 @@ def rightPress():
 def startPress():
   
   PressKey(0x56) # Start key which is V for emulator
+  time.sleep(2)
   ReleaseKey(0x56)
 
 ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -116,10 +117,15 @@ ircsock.send("NICK "+ botnick +"\n") # here we actually assign the nick to the b
 
 joinchan(channel) # Join the channel using the functions we previously defined
 
-IRC = "#ruhack "
+IRC = "#jacked "
 
-def printString(name, command):
-  
+def printCommands(name, command):
+  spaces = ""
+  spaceBetween = 25 - (len(name)+len(command))
+  while spaceBetween >0:
+    spaces += " "
+    spaceBetween -= 1
+  print name+spaces+command
 
 
 while 1: # Be careful with these! it might send you to an infinite loop
@@ -143,30 +149,30 @@ while 1: # Be careful with these! it might send you to an infinite loop
 
     if command == "a": # Finding messages
       aPress()
-      print name+" "+command
+      printCommands(name, command)
 
     if command == "b": # Finding messages
       bPress()
-      print name+" "+command
+      printCommands(name, command)
 
     if command == "up": # Finding messages
       upPress()
-      print name+" "+command
+      printCommands(name, command)
 
     if command == "down": # Finding messages
       downPress()
-      print name+" "+command
+      printCommands(name, command)
 
     if command == "left": # Finding messages
       leftPress()
-      print name+" "+command
+      printCommands(name, command)
 
     if command == "right": # Finding messages
       rightPress()
-      print name+" "+command
+      printCommands(name, command)
 
     if command == "start": # Finding messages
       startPress()
-      print name+" "+command
+      printCommands(name, command)
 
 # Keyboard Commands
