@@ -8,7 +8,7 @@ import re
 # Some basic variables used to configure the bot        
 server = "irc.freenode.net" # Server
 channel = "#jacked" # Channel
-botnick = "PokemonTest%d" % random.randint(1,10000) # Your bots nick
+botnick = "HackathonsPlayPokemon" # Your bots nick
 
 
 def ping(): # This is our first function! It will respond to server Pings.
